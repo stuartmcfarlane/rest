@@ -24,6 +24,7 @@
  */
 
 namespace Cundd\Rest\VirtualObject;
+use Cundd\Rest\VirtualObject\Exception\InvalidPropertyNameException;
 
 /**
  * Virtual Object Configuration
@@ -148,9 +149,11 @@ class Configuration implements ConfigurationInterface {
 	 * Returns the data type for the given property name
 	 *
 	 * @param string $propertyName
+	 * @throws InvalidPropertyNameException if an empty property name was given
 	 * @return string Returns one of the following: "string", "float", "int", "integer", "bool", "boolean"
 	 */
 	public function getTypeForProperty($propertyName) {
+		if (!$propertyName) throw new InvalidPropertyNameException('Property name must not be empty', 1397300114);
 		if (!$this->hasProperty($propertyName)) {
 			return NULL;
 		}

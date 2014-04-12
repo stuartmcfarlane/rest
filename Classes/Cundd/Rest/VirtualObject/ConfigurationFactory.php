@@ -91,11 +91,29 @@ class ConfigurationFactory implements SingletonInterface {
 		$propertyMapping = array();
 		$propertyMappingRaw = $mapping['properties.'];
 		foreach ($propertyMappingRaw as $propertyKey => $propertyConfiguration) {
-			$propertyKey = substr($propertyKey, 0, -1); // Strip the trailing "."
-			$propertyMapping[$propertyKey] = array(
-				'type' => $propertyConfiguration['type'],
-				'column' => isset($propertyConfiguration['column']) ? $propertyConfiguration['column'] : $propertyKey,
-			);
+
+			if (!isset($propertyConfiguration['type']) && !isset($propertyConfiguration['column'])) {
+
+				$propertyKey = substr($propertyKey, 0, -1); // Strip the trailing "."
+				foreach($propertyConfiguration as $propertyConfigurationEntryKey => $propertyConfigurationEntry) {
+					$propertyConfigurationEntryKey = substr($propertyConfigurationEntryKey, 0, -1); // Strip the trailing "."
+					$subPropertyKey = $propertyKey . '.' . $propertyConfigurationEntryKey;
+
+					$propertyMapping[$subPropertyKey] = array(
+						'type' => $propertyConfigurationEntry['type'],
+						'column' => isset($propertyConfigurationEntry['column']) ? $propertyConfigurationEntry['column'] : $propertyConfigurationEntryKey,
+					);
+				}
+
+
+			} else {
+
+				$propertyKey = substr($propertyKey, 0, -1); // Strip the trailing "."
+				$propertyMapping[$propertyKey] = array(
+					'type' => $propertyConfiguration['type'],
+					'column' => isset($propertyConfiguration['column']) ? $propertyConfiguration['column'] : $propertyKey,
+				);
+			}
 		}
 
 		$mergedConfigurationData = array(

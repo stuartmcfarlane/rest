@@ -198,7 +198,7 @@ class ObjectConverter {
 
 
 			default:
-				throw new InvalidConverterTypeException('Can not convert to type ' . $type, 1395661844);
+				throw new InvalidConverterTypeException('Can not convert to type "' . $type . '"', 1395661844);
 		}
 		return $result;
 	}
