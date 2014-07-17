@@ -34,12 +34,18 @@ class Bootstrap {
 	 * @return	void
 	 */
 	public function init() {
+		$profiler = \Cundd\Rest\Utility\Profiler::sharedInstance()->start(array('collectCaller' => TRUE));
 		if (version_compare(TYPO3_version, '6.0.0') < 0) {
 			require_once __DIR__ . '/../../../legacy.php';
 		}
 
+		$profiler->collect();
 		EidUtility::connectDB();
+		$profiler->collect();
+
 		$this->initTSFE();
+
+		$profiler->collect();
 	}
 
 	/**
@@ -60,6 +66,10 @@ class Bootstrap {
 
 		// declare
 		//$temp_TSFEclassName = t3lib_div::makeInstance('tslib_fe');
+
+		$profiler = \Cundd\Rest\Utility\Profiler::sharedInstance();
+		$profiler->collect();
+
 
 		// begin
 		if (!is_object($GLOBALS['TT']) || $overrule === TRUE) {
@@ -88,10 +98,15 @@ class Bootstrap {
 //			$rootLine = $GLOBALS['TSFE']->sys_page->getRootLine($pageUid);
 //			$GLOBALS['TSFE']->rootLine = $rootLine;
 
+			$profiler->collect();
+
 			// Init template
 			$GLOBALS['TSFE']->tmpl = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\ExtendedTemplateService');
 			$GLOBALS['TSFE']->tmpl->tt_track = 0;// Do not log time-performance information
 			$GLOBALS['TSFE']->tmpl->init();
+
+			$profiler->collect();
+
 
 			// this generates the constants/config + hierarchy info for the template.
 //			$GLOBALS['TSFE']->tmpl->runThroughTemplates(
@@ -101,11 +116,18 @@ class Bootstrap {
 			$GLOBALS['TSFE']->tmpl->generateConfig();
 			$GLOBALS['TSFE']->tmpl->loaded = 1;
 
+			$profiler->collect();
+
 			// builds a cObj
 			$GLOBALS['TSFE']->newCObj();
 
+			$profiler->collect();
+
 			// Add the FE user
+			// This is the most time-consuming part
 			$GLOBALS['TSFE']->fe_user = EidUtility::initFeUser();
+
+			$profiler->collect();
 
 //			$start = microtime(TRUE);
 			$GLOBALS['TSFE']->determineId();

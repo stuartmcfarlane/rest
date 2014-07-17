@@ -29,6 +29,7 @@ use Bullet\Response;
 use Bullet\View\Exception;
 use Cundd\Rest\Cache\Cache;
 use Cundd\Rest\DataProvider\Utility;
+use Cundd\Rest\Utility\Profiler;
 use TYPO3\CMS\Core\Log\Logger;
 use TYPO3\CMS\Core\Log\LogLevel;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -101,6 +102,9 @@ class Dispatcher implements SingletonInterface {
 	 * @return boolean Returns if the request has been successfully dispatched
 	 */
 	public function dispatch(Request $request = NULL, Response &$responsePointer = NULL) {
+		$profiler = Profiler::sharedInstance();
+		$profiler->setOutputHandler($this->getLogger());
+		$profiler->collect();
 		if ($request) {
 			$this->request = $request;
 			$this->objectManager->reassignRequest();
@@ -159,6 +163,8 @@ class Dispatcher implements SingletonInterface {
 			// Cache the response
 			$cache->setCachedValueForRequest($request, $response);
 		}
+
+		$profiler->collect();
 
 		$responsePointer = $response;
 		$responseString = (string)$response;
